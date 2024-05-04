@@ -23,7 +23,7 @@ $(function () {
     });
     $.ajax({
         type: 'GET',
-        url: 'http://localhost:5001/api/v1/status/',
+        url: 'http://0.0.0.0:5001/api/v1/status/',
         success: function (response) {
             if (response.status == 'OK') {
                 $('header #api_status').addClass('available')

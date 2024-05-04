@@ -1,4 +1,5 @@
 $(function () {
+    // this section captures/retrieves amenities checked on frontend
     $('.popover ul li input[type="checkbox"]').change(function () {
         const checkedAmenityIds = [];
         const checkedAmenityNames = [];
@@ -21,6 +22,8 @@ $(function () {
         $('.amenities h4').text(checkedAmenityNames.join(', '));
         console.log(checkedAmenityNames)
     });
+
+    // based on status of APi we change colour of circle
     $.ajax({
         type: 'GET',
         url: 'http://0.0.0.0:5001/api/v1/status/',
@@ -33,9 +36,10 @@ $(function () {
         },
     })
 
+    // this code renders artciles fetched from backend
     $.ajax({
         type: 'POST',
-        url: 'http://localhost:5001/api/v1/places_search/',
+        url: 'http://0.0.0.0:5001/api/v1/places_search/',
         contentType: 'application/json',
         data: JSON.stringify({}), // querying the APi with {} returns all places in DB
         success: function (places) {

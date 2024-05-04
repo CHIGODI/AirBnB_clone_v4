@@ -8,17 +8,15 @@ $(function () {
         const name = $(this).data('name');
         checkedAmenityIds.push(id);
         checkedAmenityNames.push(name);
-      } 
-      else {
-        let id = $(this).data('id');
-        let index = checkedAmenityIds.indexOf(id);
+      } else {
+        const id = $(this).data('id');
+        const index = checkedAmenityIds.indexOf(id);
         if (index !== -1) {
-            checkedAmenityIds.splice(index, 1);
-            checkedAmenityNames.splice(index, 1);
+          checkedAmenityIds.splice(index, 1);
+          checkedAmenityNames.splice(index, 1);
         }
       }
     });
     $('.amenities h4').text(checkedAmenityNames.join(', '));
-    console.log(checkedAmenityNames)
   });
 });

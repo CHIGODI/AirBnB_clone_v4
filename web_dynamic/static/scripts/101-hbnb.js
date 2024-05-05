@@ -43,7 +43,6 @@ function renderFilteredPlaces(stateIds = {}, cityIds = {}, amenityIds = {}) {
     });
 }
 
-
 // ------------------------------------------------------------------------
 // wait for DOM to Load
 $(function () {
@@ -55,7 +54,7 @@ $(function () {
 
     let checkedAmenityIds = [];
     let checkedAmenityNames = [];
-    
+
     function updateDisplayedNames() {
         let names = checkedstateNames.concat(checkedcityNames);
         $('.locations h4').html(names.join(', '));
@@ -98,7 +97,7 @@ $(function () {
             } else {
                 const id = $(this).data('id');
                 const index = checkedstateIds.indexOf(id);
-                if (index !== -1)  {
+                if (index !== -1) {
                     checkedstateIds.splice(index, 1);
                     checkedstateNames.splice(index, 1);
                 }
@@ -156,4 +155,3 @@ $(function () {
     // Initial rendering of places
     renderFilteredPlaces();
 });
-add 

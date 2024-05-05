@@ -1,10 +1,12 @@
 // Function to render places based on selected amenities
-function renderFilteredPlaces(amenityIds = {}) {
+function renderFilteredPlaces (stateIds = {}, cityIds = {}, amenityIds = {}) {
   $.ajax({
     type: 'POST',
-    url: 'http://localhost:5001/api/v1/places_search/',
+    url: 'http://0.0.0.0:5001/api/v1/places_search/',
     contentType: 'application/json',
     data: JSON.stringify({
+      states: stateIds,
+      cities: cityIds,
       amenities: amenityIds
     }),
     success: function (places) {
@@ -15,7 +17,7 @@ function renderFilteredPlaces(amenityIds = {}) {
         $('.places').append("<div class='no-places'></div>").text('No places found with the amenity combinations, try picking others');
       }
 
-      // stores articles temporarily before rendering at once
+      // stores artcles temporally before rendering at once
       const articlesFragment = document.createDocumentFragment();
 
       // Loop through places response to retrieve each place's data
@@ -41,18 +43,28 @@ function renderFilteredPlaces(amenityIds = {}) {
   });
 }
 
+// ------------------------------------------------------------------------
 // wait for DOM to Load
 $(function () {
+  let checkedstateNames = [];
+  let checkedstateIds = [];
+
+  let checkedcityIds = [];
+  let checkedcityNames = [];
+
   let checkedAmenityIds = [];
   let checkedAmenityNames = [];
-  let stateIds = {};
-  let cityIds = {};
+
+  function updateDisplayedNames () {
+    const names = checkedstateNames.concat(checkedcityNames);
+    $('.locations h4').html(names.join(', '));
+  }
 
   // Event listener for changes in checked amenities
-  $('.popover ul li input[type="checkbox"]').change(function () {
+  $('.amenities .popover ul li input[type="checkbox"]').change(function () {
     checkedAmenityIds = [];
     checkedAmenityNames = [];
-    $('.popover ul li input[type="checkbox"]').each(function () {
+    $('.amenities .popover ul li input[type="checkbox"]').each(function () {
       if ($(this).is(':checked')) {
         const id = $(this).data('id');
         const name = $(this).data('name');
@@ -67,42 +79,65 @@ $(function () {
         }
       }
     });
+    $('.amenities h4').html(checkedAmenityNames.join(', '));
     console.log(checkedAmenityNames);
-    $('.amenities h4').text(checkedAmenityNames.join(', '));
   });
 
-  // Event listeners for state checkboxes
-  $('.stateCheckBox').click(function () {
-    if ($(this).prop('checked')) {
-      stateIds[$(this).attr('data-id')] = $(this).attr('data-name');
-    } else if (!$(this).prop('checked')) {
-      delete stateIds[$(this).attr('data-id')];
-    }
-    if (Object.keys(stateIds).length === 0 && Object.keys(cityIds).length === 0) {
-      $('.locations h4').html('&nbsp;');
-    } else {
-      $('.locations h4').text(Object.values(stateIds).concat(Object.values(cityIds)).join(', '));
-    }
+  // Event listener for changes in checked amenities
+  $('.locations .popover ul > li > h2 > input').change(function () {
+    checkedstateIds = [];
+    checkedstateNames = [];
+
+    $('.locations .popover ul > li > h2 > input').each(function () {
+      if ($(this).is(':checked')) {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        checkedstateIds.push(id);
+        checkedstateNames.push(name);
+      } else {
+        const id = $(this).data('id');
+        const index = checkedstateIds.indexOf(id);
+        if (index !== -1) {
+          checkedstateIds.splice(index, 1);
+          checkedstateNames.splice(index, 1);
+        }
+      }
+    });
+    updateDisplayedNames();
   });
 
-  // Event listeners for city checkboxes
-  $('.cityCheckBox').click(function () {
-    if ($(this).prop('checked')) {
-      cityIds[$(this).attr('data-id')] = $(this).attr('data-name');
-    } else if (!$(this).prop('checked')) {
-      delete cityIds[$(this).attr('data-id')];
-    }
-    if (Object.keys(stateIds).length === 0 && Object.keys(cityIds).length === 0) {
-      $('.locations h4').html('&nbsp;');
-    } else {
-      $('.locations h4').text(Object.values(cityIds).concat(Object.values(stateIds)).join(', '));
-    }
+  $('.locations .popover ul > li > ul > li > input').change(function () {
+    checkedcityIds = [];
+    checkedcityNames = [];
+
+    $('.locations .popover ul > li > ul > li > input').each(function () {
+      if ($(this).is(':checked')) {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        checkedcityIds.push(id);
+        checkedcityNames.push(name);
+      } else {
+        const id = $(this).data('id');
+        const index = checkedcityNames.indexOf(id);
+        if (index !== -1) {
+          checkedcityIds.splice(index, 1);
+          checkedcityNames.splice(index, 1);
+        }
+      }
+    });
+    updateDisplayedNames();
   });
 
+  // rendering once----------------------------------------------------------
+  $('.container button').click(function () {
+    renderFilteredPlaces(checkedstateIds, checkedcityIds, checkedAmenityIds);
+  });
+
+  // --------------------------------------------------------------------
   // AJAX call to check API status
   $.ajax({
     type: 'GET',
-    url: 'http://localhost:5001/api/v1/status/',
+    url: 'http://0.0.0.0:5001/api/v1/status/',
     success: function (response) {
       if (response.status === 'OK') {
         $('header #api_status').addClass('available');
@@ -112,33 +147,8 @@ $(function () {
     }
   });
 
+  // --------------------------------------------------------------------
   // Initial rendering of places
   renderFilteredPlaces();
 });
 
-// Task 6
-$('.stateCheckBox').click(function () {
-  if ($(this).prop('checked')) {
-    stateIds[$(this).attr('data-id')] = $(this).attr('data-name');
-  } else if (!$(this).prop('checked')) {
-    delete stateIds[$(this).attr('data-id')];
-  }
-  if (Object.keys(stateIds).length === 0 && Object.keys(cityIds).length === 0) {
-    $('.locations h4').html('&nbsp;');
-  } else {
-    $('.locations h4').text(Object.values(stateIds).concat(Object.values(cityIds)).join(', '));
-  }
-});
-
-$('.cityCheckBox').click(function () {
-  if ($(this).prop('checked')) {
-    cityIds[$(this).attr('data-id')] = $(this).attr('data-name');
-  } else if (!$(this).prop('checked')) {
-    delete cityIds[$(this).attr('data-id')];
-  }
-  if (Object.keys(stateIds).length === 0 && Object.keys(cityIds).length === 0) {
-    $('.locations h4').html('&nbsp;');
-  } else {
-    $('.locations h4').text(Object.values(cityIds).concat(Object.values(stateIds)).join(', '));
-  }
-});
